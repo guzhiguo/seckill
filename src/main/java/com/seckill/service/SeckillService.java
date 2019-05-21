@@ -6,7 +6,6 @@ import com.seckill.entity.Seckill;
 import com.seckill.exception.RepeatSeckillException;
 import com.seckill.exception.SeckillCloseException;
 import com.seckill.exception.SeckillException;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -32,7 +31,7 @@ public interface SeckillService {
      * @param limit
      * @return
      */
-    List<Seckill> queryAll(int offset,int limit);
+    List<Seckill> queryAll(int offset, int limit);
 
     /**
      * 秒杀开启时输出秒杀地址

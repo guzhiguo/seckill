@@ -45,7 +45,7 @@ public class SeckillServiceImpl implements SeckillService {
 
     @Override
     public List<Seckill> queryAll(int offset, int limit) {
-        return seckillDao.queryAll(0, 10);
+        return seckillDao.queryAll(offset, limit);
     }
 
     @Override
