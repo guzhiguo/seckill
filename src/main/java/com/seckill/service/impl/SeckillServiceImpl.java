@@ -11,6 +11,7 @@ import com.seckill.exception.RepeatSeckillException;
 import com.seckill.exception.SeckillCloseException;
 import com.seckill.exception.SeckillException;
 import com.seckill.service.SeckillService;
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author bill
@@ -97,6 +100,36 @@ public class SeckillServiceImpl implements SeckillService {
             logger.error(e.getMessage(), e);
             throw new SeckillException("seckill inner error:" + e.getMessage());
         }
+    }
+
+    @Override
+    public SeckillExecution executeSeckillProcedure(long seckillId, long userPhone, String md5) {
+        if (md5 == null || !md5.equals(getMD5(seckillId))) {
+            return new SeckillExecution(seckillId, SeckillStateEnum.DATA_REWRITE);
+        }
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("seckillId", seckillId);
+        map.put("phone", userPhone);
+        map.put("killTime", new Date());
+        map.put("result", null);
+
+        //执行存储过程
+
+        try {
+            seckillDao.kellByProcedure(map);
+            int result = MapUtils.getInteger(map, "result", -2);
+            if (result == 1) {
+                SuccessSeckill successSeckill = successSeckillDao.queryByIdWithSeckillId(seckillId, userPhone);
+                return new SeckillExecution(seckillId, SeckillStateEnum.SUCCESS, successSeckill);
+            } else {
+                return new SeckillExecution(seckillId, SeckillStateEnum.stateEnum(result));
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return new SeckillExecution(seckillId, SeckillStateEnum.INNER_ERROR);
+        }
+
     }
 
 

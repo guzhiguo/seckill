@@ -72,23 +72,35 @@ public class SeckillServiceTest {
     public void toSeckill() {
         long id = 1000;
         Exposer exposer = seckillService.exportSeckillUrl(id);
-        if(exposer.isExposed()){
-            logger.info("exposer={}",exposer.toString());
+        if (exposer.isExposed()) {
+            logger.info("exposer={}", exposer.toString());
             long pnhone = 18225786091L;
             String md5 = exposer.getMd5();
             try {
-                SeckillExecution seckillExecution = seckillService.executeSeckill(id,pnhone,md5);
-                logger.info("seckillExecution={}",seckillExecution.toString());
+                SeckillExecution seckillExecution = seckillService.executeSeckill(id, pnhone, md5);
+                logger.info("seckillExecution={}", seckillExecution.toString());
             } catch (RepeatSeckillException e) {
                 logger.error(e.getMessage());
             } catch (SeckillCloseException e) {
                 logger.error(e.getMessage());
             }
 
-        }else {
-            logger.warn("秒杀未开启！exposer={}",exposer);
+        } else {
+            logger.warn("秒杀未开启！exposer={}", exposer);
         }
 
+    }
+
+    @Test
+    public void executeSeckillProcedure() {
+        long seckillId = 1000;
+        long phone = 18225786091L;
+        Exposer exposer = seckillService.exportSeckillUrl(seckillId);
+        if (exposer.isExposed()) {
+            String md5 = exposer.getMd5();
+            SeckillExecution execution = seckillService.executeSeckillProcedure(seckillId, phone, md5);
+            logger.info(execution.getStateInfo());
+        }
     }
 
 }
